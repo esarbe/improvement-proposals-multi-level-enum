@@ -111,6 +111,7 @@ Notes / rules:
 
 - Type relationships: for a nested declaration `case enum S` inside `enum E`, every leaf `L` declared under `S` satisfies `L <: S <: E`. Parameterized cases keep their declared type parameters and variance; companion objects are singletons whose `.type` is a subtype of the declared class type.
 
+
 ```scala
 enum Animal:
   case enum Mammal:
@@ -128,15 +129,16 @@ val d: Mammal = Animal.Mammal.Dog
 val a: Animal = Animal.Mammal.Dog
 
 // `.values` and `ordinal` (per-enum view):
+// Each enum's ordinals are relative to its own `.values`
 ```scala
-enum Animal:        // No ordinal
-  case enum Mammal: // No ordinal
-    case Dog        // Ordinal 0
-    case Cat        // Ordinal 1
-  case enum Bird:   // No ordinal
-    case Sparrow    // Ordinal 2
-    case Pinguin    // Ordinal 3
-  case Fish         // Ordinal 4
+enum Animal:        // No ordinal (non-leaf container)
+  case enum Mammal: // No ordinal (non-leaf container)
+    case Dog        // Ordinal 0 in Mammal, Ordinal 0 in Animal
+    case Cat        // Ordinal 1 in Mammal, Ordinal 1 in Animal
+  case enum Bird:   // No ordinal (non-leaf container)
+    case Sparrow    // Ordinal 0 in Bird, Ordinal 2 in Animal
+    case Pinguin    // Ordinal 1 in Bird, Ordinal 3 in Animal
+  case Fish         // Ordinal 2 in Animal
 ```
 
 // Matching semantics:
@@ -203,9 +205,10 @@ Proposal for term-subcase typing:
 
 #### Reflection / Enum APIs
 
-- `Animal.values`: All leaf values (`Dog`, `Cat`, `Sparrow`, etc.)
+- `Animal.values`: All leaf values (`Dog`, `Cat`, `Sparrow`, `Pinguin`, `Fish`) in source-order (depth-first, left-to-right).
 - Each nested `case enum` (e.g., `Mammal`) gets its own `.values`, `.ordinal`, and `.valueOf` API.
-- `ordinal` value of leaves are global to the supercase  (e.g., `Dog.ordinal == 0`, `Cat.ordinal == 1`, etc.)
+- Each enum's `.values` contains only its direct leaf members, and `.ordinal` is the index within that enum's `.values`.
+- A leaf's ordinal depends on which enum it is queried from: `Dog.ordinal` in `Mammal` is 0; in `Animal` it is also 0.
 
 #### Syntax Specification (EBNF-like)
 
