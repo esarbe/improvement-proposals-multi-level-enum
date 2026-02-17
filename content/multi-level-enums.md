@@ -122,51 +122,16 @@ val d: Mammal = Animal.Mammal.Dog
 val a: Animal = Animal.Mammal.Dog
 
 // `.values` and `ordinal` (per-enum view):
-Animal.values == Array(Dog, Cat, Fish)
-Dog.ordinal in Animal == 0
-Cat.ordinal in Animal == 1
-Fish.ordinal in Animal == 2
-
-Mammal.values == Array(Dog, Cat)
-Dog.ordinal in Mammal == 0
-
-// Matching semantics:
-a match
-  case _: Mammal => // matches Dog | Cat
-  case Mammal  => // matches singleton Mammal only when declared as a leaf
-
-// Inferred term-subcase type:
-val x = Animal.Mammal.Dog // inferred: Animal.Mammal.Dog.type
-
-// Prohibited ambiguity (example):
-enum Bad:
-  case Mammal           // term
-  case enum Mammal:     // error: duplicate/ambiguous name
-    case Dog
-```
 ```scala
-enum Animal:
-  case enum Mammal:
-    case Dog, Cat
-  case Fish
-
-// Lowered/type relations
-// Dog <: Mammal <: Animal
-// Cat <: Mammal <: Animal
-// Fish <: Animal
-
-// Widening (constructor expression widens to the nearest enclosing enum):
-val d: Mammal = Animal.Mammal.Dog
-val a: Animal = Animal.Mammal.Dog
-
-// `.values` and `ordinal` (per-enum view) — valid Scala checks:
-assert(Animal.values.toList == List(Dog, Cat, Fish))
-assert(Animal.values.indexOf(Dog) == 0)
-assert(Animal.values.indexOf(Cat) == 1)
-assert(Animal.values.indexOf(Fish) == 2)
-
-assert(Mammal.values.toList == List(Dog, Cat))
-assert(Mammal.values.indexOf(Dog) == 0)
+enum Animal:        // No ordinal
+  case enum Mammal: // No ordinal
+    case Dog        // Ordinal 0
+    case Cat        // Ordinal 1
+  case enum Bird:   // No ordinal
+    case Sparrow    // Ordinal 2
+    case Pinguin    // Ordinal 3
+  case Fish         // Ordinal 4
+```
 
 // Matching semantics:
 a match
