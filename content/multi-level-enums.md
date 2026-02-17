@@ -104,7 +104,7 @@ object Animal:
 
 Notes / rules:
 
-- Enums are modeled as sealed abstract classes; all subtype relations asserted by nested `case enum` follow that model.
+- Enums are modeled as `sealed abstract class`; all subtype relations asserted by nested `case enum` follow that model.
 - `extends` clauses on cases follow normal Scala rules: a case may extend an accessible abstract class or trait; when it names the enclosing supercase class (the immediately enclosing `case enum`), that creates the intended parent/child enum subtype relation.
 - Constructor expressions of nested leaf cases are "widened" to the immediately enclosing enum type (the nearest enclosing `enum` or `case enum` under which the case is declared). In other words, the declared parent is the target widening type.
 - A nested `case enum` that contains subcases is not simultaneously a distinct term-case value of its parent. If it has subcases it represents a namespace/type; to have both a singleton term and subcases you must declare them separately with distinct names.
