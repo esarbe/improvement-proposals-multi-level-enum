@@ -118,10 +118,8 @@ enum Animal:
 // Fish <: Animal
 
 // Widening (constructor expression widens to the nearest enclosing enum):
-```scala
 val d: Mammal = Animal.Mammal.Dog
 val a: Animal = Animal.Mammal.Dog
-```
 
 // `.values` and `ordinal` (per-enum view):
 Animal.values == Array(Dog, Cat, Fish)
@@ -173,7 +171,7 @@ assert(Mammal.values.indexOf(Dog) == 0)
 // Matching semantics:
 a match
   case _: Mammal => // matches Dog | Cat
-  case Mammal    => // matches singleton Mammal only when declared as a leaf
+  case Mammal  => // matches singleton Mammal only when declared as a leaf
 
 // Inferred term-subcase type:
 val x = Animal.Mammal.Dog // inferred: Animal.Mammal.Dog.type
@@ -257,9 +255,10 @@ Ids             ::= Id {',' Id}
 - Type relationships must be modeled to reflect subtyping: e.g. `Dog <: Mammal <: Animal`.
 
 
-#### Examples
+#### Examples (with desugaring)
 
-#### Example 1: Basic Structure
+
+##### Basic Structure
 
 ```scala
 enum Shape:
@@ -270,9 +269,13 @@ enum Shape:
     case Circle
 
   case Point
+
+
+// Desugaring
+
 ```
 
-#### Example 2: Moddeling size information
+#### Moddeling size information
 
 ```
 enum SizeInfo {
@@ -284,7 +287,7 @@ enum SizeInfo {
 }
 ```
 
-#### Example 3: Generalized `Either`
+#### Generalized `Either`
 
 ```
 enum AndOr[+A, +B] {
@@ -295,9 +298,12 @@ enum AndOr[+A, +B] {
   }
 }
 
+
+// Desugaring
+
 ```
 
-#### Example 4:
+#### JSON datataype
 Grouping JSON values into primitives and non-primitives
 
 ```
@@ -314,8 +320,40 @@ enum JsValue {
     }
   }
 }
+
+// Desugaring
+
 ```
 
+##### Parameterized nested enums and `extends` clause
+
+```scala
+enum Animal:
+  case enum Bird(sound: String):
+    case Sparrow extends Bird("chirp")
+    case Pinguin extends Bird("honk")
+
+  case enum Mammal:
+    case Dog(sound: String) extends Mammal
+    case Cat(sound: String) extends Mammal
+
+  case Fish
+
+// Desugaring:
+sealed abstract class Animal
+object Animal:
+  sealed abstract class Bird(val sound: String) extends Animal
+  object Bird:
+    case object Sparrow extends Bird("chirp")
+    case object Pinguin extends Bird("honk")
+
+  sealed abstract class Mammal extends Animal
+  object Mammal:
+    case class Dog(sound: String) extends Mammal
+    case class Cat(sound: String) extends Mammal
+
+  case object Fish extends Animal
+```
 
 
 
@@ -323,7 +361,6 @@ enum JsValue {
 - Fully backwards compatible: does not affect existing flat enums.
 - Adds optional expressiveness.
 - Libraries using `enum` APIs (e.g., `values`) will continue to function with leaf-only views.
-- Mirrors and macros
 
 ### Other Concerns
 
