@@ -73,10 +73,16 @@ enum Animal:
 #### Desugaring / Type Relationships
 
 
-1. An `enum E` lowers to a sealed abstract class `E` plus a companion `object E`.
-2. A nested `case enum S` declared inside `E` lowers to a sealed abstract class `S extends E` and a companion `object S` placed in `E`'s companion.
-3. Each nested leaf `case` lowers to a `case object` (or `case class` for parameterized cases) that extends the innermost declared abstract class (the immediately enclosing `case enum`).
-4. If a `case` has no nested subcases it is a leaf and becomes a direct subclass of the enclosing enum class.
+
+Recursive desugaring:
+
+1. For `enum E` emit `sealed abstract class E` and `object E` (the companion).
+2. For each `case Ids` directly under the current enum/enum-case:
+  - if `Id` has no nested subcases, emit `case object`/`case class` `Id` extending the current sealed class.
+  - if `Id` is `case enum S: ...`, emit `sealed abstract class S extends Current` and `object S` in the current companion, then recursively lower `S`'s body with `S` as the current sealed class.
+3. If a case has an explicit `extends T`, use `T` as the immediate supertype instead of the current sealed class (subject to normal Scala `extends` rules).
+4. Preserve declared type parameters and variance for parameterized cases and nested enums; companions are singletons (`.type`).
+5. Populate each companion's `.values` from the companion's leaf members in source-order (depth-first, left-to-right traversal).
 
 Example lowered shape (conceptual):
 
