@@ -138,7 +138,7 @@ enum Animal:        // No ordinal (non-leaf container)
   case enum Bird:   // No ordinal (non-leaf container)
     case Sparrow    // Ordinal 0 in Bird, Ordinal 2 in Animal
     case Pinguin    // Ordinal 1 in Bird, Ordinal 3 in Animal
-  case Fish         // Ordinal 2 in Animal
+  case Fish         // Ordinal 4 in Animal
 ```
 
 // Matching semantics:
